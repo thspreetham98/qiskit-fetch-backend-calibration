@@ -41,6 +41,7 @@ while True:
     if current_time > next_update:
         job_status = job.status()
         backend_properties = backend.properties()
+        print("Job status:", job_status, ", Checking.................", end='\r')
         last_update = backend_properties.last_update_date
         if last_update != prev_last_update:
             print('Last Calibrated at:', last_update)
@@ -48,15 +49,12 @@ while True:
             fname = "{}/{}_{}.p".format(pickle_path, backend.name, str(last_update.timestamp()))
             print('Saved to: ', fname)
             pickle.dump(backend_properties, open(fname, "wb" ) )
-            next_update = next_update + timedelta(hours=1)
-    time_diff = str(next_update - current_time)
-    
-    print("Job status:", job_status, ", Next Attempt in: ", time_diff, end='\r')
+        next_update = current_time + timedelta(hours=1)
+    else:
+        time_diff = str(next_update - current_time)
+        print("Job status:", job_status, ", Next Attempt in: ", time_diff[0:7], end='\r')
     if job_status in [JobStatus.DONE, JobStatus.CANCELLED, JobStatus.ERROR]:
         break
 
 
-    time.sleep(1)  # Delay for 1 hour before checking again
-
-
-
+    time.sleep(1)
